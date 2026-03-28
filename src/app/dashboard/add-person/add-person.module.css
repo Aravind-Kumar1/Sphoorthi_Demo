@@ -5,10 +5,10 @@
 .page {
   display: flex;
   flex-direction: column;
-  padding: 1rem 2.5rem; /* Compact padding */
-  height: calc(100vh - 64px);
+  padding: 1.5rem 2.5rem;
+  min-height: calc(100vh - 64px);
   background: var(--clr-bg);
-  overflow: hidden; /* No scroll */
+  overflow-y: auto; /* Allow scroll if content is too tall */
   animation: fadeIn 0.4s var(--ease);
 }
 
@@ -69,13 +69,12 @@
   background: var(--clr-bg-card);
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-md);
-  padding: 1.5rem;
+  padding: 2rem;
   display: grid;
   grid-template-columns: 180px 1fr; /* Photo on left, grid on right */
-  gap: 2rem;
-  flex: 1;
-  min-height: 0;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  gap: 2.5rem;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  margin-bottom: 2rem; /* Ensure bottom spacing */
 }
 
 /* ---- Photo Upload ---- */
@@ -267,11 +266,28 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Responsive Grid-off */
-@media (max-width: 768px) {
-  .page { height: auto; overflow: auto; }
-  .form { grid-template-columns: 1fr; }
-  .photoSection { border-right: none; padding-right: 0; border-bottom: 1px solid var(--clr-border); padding-bottom: 1.5rem; }
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .page { padding: 1.5rem; }
+  .form { gap: 1.5rem; }
+}
+
+@media (max-width: 850px) {
+  .form { 
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .photoSection { 
+    border-right: none; 
+    padding-right: 0; 
+    border-bottom: 1px solid var(--clr-border); 
+    padding-bottom: 2rem; 
+  }
+}
+
+@media (max-width: 600px) {
   .grid { grid-template-columns: 1fr; }
   .fullCol { grid-column: 1; }
+  .actions { flex-direction: column-reverse; }
+  .btnSubmit { width: 100%; justify-content: center; }
 }
