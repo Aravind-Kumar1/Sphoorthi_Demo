@@ -9,13 +9,28 @@ import styles from './dashboard.module.css';
 export type Person = {
   id: string;
   name: string;
+  fatherName: string;
   email: string;
   phone: string;
+  aadharNo: string;
+  dob: string;
+  education: string;
+  occupation: string;
+  address: string;
+  houseNo: string;
+  village: string;
+  mandal: string;
+  district: string;
+  pin: string;
   role: string;
   location: string;
+  membershipCategory: string;
+  membershipDuration: string;
+  membershipAmount: string;
   joinedDate: string;
   status: 'Active' | 'Inactive' | 'Pending';
   photo: string | null;
+  receiptUrl: string | null;
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -28,13 +43,28 @@ const STATUS_COLORS: Record<string, string> = {
 const sanitizeMember = (m: any): Person => ({
   id: m.id,
   name: m.full_name,
+  fatherName: m.father_name || '—',
   email: m.email,
   phone: m.phone || '—',
+  aadharNo: m.aadhar_no || '—',
+  dob: m.dob || '—',
+  education: m.education || '—',
+  occupation: m.occupation || '—',
+  address: m.address || '—',
+  houseNo: m.house_no || '—',
+  village: m.village || '—',
+  mandal: m.mandal || '—',
+  district: m.district || '—',
+  pin: m.pin || '—',
   role: m.role || 'Member',
   location: m.location || '—',
+  membershipCategory: m.membership_category || '—',
+  membershipDuration: m.membership_duration || '—',
+  membershipAmount: m.membership_amount || '0',
   joinedDate: m.created_at,
   status: m.status,
-  photo: m.photo_url
+  photo: m.photo_url,
+  receiptUrl: m.receipt_url
 });
 
 export default function DashboardPage() {
@@ -85,12 +115,7 @@ export default function DashboardPage() {
   const filtered = people
     .filter(p => {
       const q = search.toLowerCase();
-      return (
-        (p.name || '').toLowerCase().includes(q) ||
-        (p.email || '').toLowerCase().includes(q) ||
-        (p.role || '').toLowerCase().includes(q) ||
-        (p.location || '').toLowerCase().includes(q)
-      );
+      return (p.name || '').toLowerCase().includes(q);
     })
     .sort((a, b) => {
       const av = a[sortCol] as string;
@@ -163,66 +188,64 @@ export default function DashboardPage() {
 
   return (
     <div className={styles.page}>
-      {/* Page Header */}
+      {/* Row 1: Page Title & Global Action */}
       <div className={styles.pageHeader}>
         <div>
           <h1 className={styles.pageTitle}>Dashboard</h1>
-          <p className={styles.pageSubtitle}>{people.length} people registered in Sphoorthi Kutumbam</p>
+          <p className={styles.pageSubtitle}>{people.length} people registered in SPHOORTHI KUTUMBAM TELANGANA - WARANGAL DIVISION</p>
         </div>
         <Link href="/dashboard/add-person" className={styles.btnAdd}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           Add Person
         </Link>
       </div>
 
-      {/* Stats Row */}
-      <div className={styles.stats}>
-        {loading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className={`${styles.statCard} ${styles.skeletonPulse}`}>
-              <div style={{ height: '3rem', width: '60%', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }} />
-            </div>
-          ))
-        ) : (
-          <>
-            {(['Active', 'Inactive', 'Pending'] as const).map(s => (
-              <div key={s} className={styles.statCard}>
-                <span className={`${styles.statDot} ${STATUS_COLORS[s]}`} />
-                <span className={styles.statCount}>{people.filter(p => p.status === s).length}</span>
-                <span className={styles.statLabel}>{s}</span>
+      {/* Row 2: Search [Left] + Stats [Right] */}
+      <div className={styles.topBar}>
+        <div className={styles.searchWrap} style={{ maxWidth: '320px' }}>
+          <span className={styles.searchIcon}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </span>
+          <input
+            className={styles.searchInput}
+            type="text"
+            placeholder="Search by name only..."
+            value={search}
+            onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
+          />
+        </div>
+
+        <div className={styles.stats}>
+          {loading ? (
+            <div className={styles.skeletonPulse} style={{ height: '2.5rem', width: '200px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }} />
+          ) : (
+            <>
+              {(['Active', 'Inactive', 'Pending'] as const).map(s => (
+                <div key={s} className={styles.statCard}>
+                  <span className={styles.statCount}>{people.filter(p => p.status === s).length}</span>
+                  <span className={styles.statLabel}>{s}</span>
+                </div>
+              ))}
+              <div className={styles.statCard} style={{ borderRight: 'none' }}>
+                <span className={styles.statTotal}>{people.length}</span>
+                <span className={styles.statLabel}>Total</span>
               </div>
-            ))}
-            <div className={styles.statCard}>
-              <span className={styles.statTotal}>{people.length}</span>
-              <span className={styles.statLabel}>Total</span>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Table Card */}
       <div className={styles.tableCard}>
-        {/* Toolbar */}
-        <div className={styles.toolbar}>
-          <div className={styles.searchWrap}>
-            <span className={styles.searchIcon}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            </span>
-            <input
-              className={styles.searchInput}
-              type="text"
-              placeholder="Search by name, email, role…"
-              value={search}
-              onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
-            />
-          </div>
-          {selected.length > 0 && (
+        {/* Toolbar - Only Delete now */}
+        {selected.length > 0 && (
+          <div className={styles.toolbar}>
             <button className={styles.btnDelete} onClick={() => setShowDeleteModal(true)}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-              Delete {selected.length}
+              Delete {selected.length} Selected
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Table */}
         <div className={styles.tableWrap}>
@@ -237,6 +260,7 @@ export default function DashboardPage() {
                     className={styles.checkbox}
                   />
                 </th>
+                <th className={styles.th} style={{ width: '60px' }}>Sl No</th>
                 <th className={styles.th} onClick={() => toggleSort('name')}>Name <SortIcon col="name" /></th>
                 <th className={styles.th} onClick={() => toggleSort('email')}>Email <SortIcon col="email" /></th>
                 <th className={styles.th} onClick={() => toggleSort('role')}>Role <SortIcon col="role" /></th>
@@ -273,13 +297,9 @@ export default function DashboardPage() {
                       className={styles.checkbox}
                     />
                   </td>
+                  <td className={styles.td} style={{ color: '#667', fontWeight: 600 }}>{startIndex + i + 1}</td>
                   <td className={styles.td}>
                     <div className={styles.nameCell}>
-                      {p.photo ? (
-                        <Image src={p.photo} alt={p.name} width={34} height={34} className={styles.photoThumb} />
-                      ) : (
-                        <div className={styles.avatar}>{initials(p.name)}</div>
-                      )}
                       <span className={styles.nameText}>{p.name}</span>
                     </div>
                   </td>
@@ -410,9 +430,15 @@ export default function DashboardPage() {
 
 function ActionMenuPortal({ anchor, onClose, onView, onEdit, onDelete }: any) {
   useEffect(() => {
-    const handle = () => onClose();
-    window.addEventListener('scroll', handle, true);
-    return () => window.removeEventListener('scroll', handle, true);
+    const handleClose = () => onClose();
+    // Use mousedown to close on any outside click
+    window.addEventListener('mousedown', handleClose);
+    window.addEventListener('scroll', handleClose, true);
+    
+    return () => {
+      window.removeEventListener('mousedown', handleClose);
+      window.removeEventListener('scroll', handleClose, true);
+    };
   }, [onClose]);
 
   return createPortal(
@@ -420,6 +446,8 @@ function ActionMenuPortal({ anchor, onClose, onView, onEdit, onDelete }: any) {
       className={styles.dropdownMenuPortal} 
       style={{ top: anchor.top, right: anchor.right }}
       onClick={e => e.stopPropagation()}
+      // OnMouseDown stopPropagation prevents the menu itself from triggering handleClose
+      onMouseDown={e => e.stopPropagation()}
     >
       <button className={styles.menuItem} onClick={onView}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -450,81 +478,106 @@ function MemberModal({ mode, person, onClose, onSave }: any) {
       setSaving(false);
     }
   };
+
+  const DetailItem = ({ label, value }: { label: string, value: any }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+      <label style={{ fontSize: '0.65rem', color: '#667', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
+      <div style={{ fontSize: '0.875rem', color: '#eee', fontWeight: 500 }}>{value}</div>
+    </div>
+  );
+
+  const SectionTitle = ({ title }: { title: string }) => (
+    <div style={{ gridColumn: '1 / -1', fontSize: '0.7rem', fontWeight: 800, color: 'var(--clr-accent)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '1rem', paddingBottom: '0.25rem', borderBottom: '1px solid rgba(99, 102, 241, 0.15)' }}>
+      {title}
+    </div>
+  );
+
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+      <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{ maxWidth: mode === 'view' ? '700px' : '550px' }}>
         <div className={styles.modalHeader}>
-          <h3 className={styles.modalTitle}>{mode === 'view' ? 'View Member Details' : 'Edit Member Details'}</h3>
+          <h3 className={styles.modalTitle}>{mode === 'view' ? 'Membership Details' : 'Edit Member'}</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#667', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
         </div>
         
         <div className={styles.modalBody}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600 }}>FULL NAME</label>
-              <input 
-                value={form.name} 
-                readOnly={mode === 'view'}
-                onChange={e => setForm({...form, name: e.target.value})}
-                className={styles.modalInput}
-              />
+          {mode === 'view' ? (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <SectionTitle title="Personal Information" />
+              <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1.5rem', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px' }}>
+                {person.photo ? (
+                  <Image src={person.photo} alt={person.name} width={80} height={80} style={{ borderRadius: '12px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} />
+                ) : (
+                  <div style={{ width: 80, height: 80, borderRadius: '12px', background: 'var(--clr-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 800 }}>{person.name[0]}</div>
+                )}
+                <div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>{person.name}</div>
+                  <div style={{ color: 'var(--clr-accent)', fontSize: '0.85rem', fontWeight: 600 }}>{person.role} • {person.membershipCategory}</div>
+                </div>
+              </div>
+
+              <DetailItem label="Father Name" value={person.fatherName} />
+              <DetailItem label="Aadhar Number" value={person.aadharNo} />
+              <DetailItem label="Date of Birth" value={person.dob} />
+              <DetailItem label="Education" value={person.education} />
+              <DetailItem label="Occupation" value={person.occupation} />
+              <DetailItem label="Status" value={person.status} />
+
+              <SectionTitle title="Contact & Address" />
+              <DetailItem label="Email" value={person.email} />
+              <DetailItem label="Phone" value={person.phone} />
+              <div style={{ gridColumn: '1 / -1' }}>
+                <DetailItem label="Full Address" value={`${person.houseNo}, ${person.address}, ${person.village}, ${person.mandal}, ${person.district} - ${person.pin}`} />
+              </div>
+
+              <SectionTitle title="Membership & Payment" />
+              <DetailItem label="Category" value={person.membershipCategory} />
+              <DetailItem label="Duration" value={person.membershipDuration} />
+              <DetailItem label="Fee Paid" value={`₹ ${person.membershipAmount}`} />
+              <DetailItem label="Joined Date" value={new Date(person.joinedDate).toLocaleDateString()} />
+
+              {person.receiptUrl && (
+                <div style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
+                  <label style={{ fontSize: '0.65rem', color: 'var(--clr-accent)', fontWeight: 800, textTransform: 'uppercase' }}>Payment Receipt</label>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <Image 
+                      src={person.receiptUrl} 
+                      alt="Receipt" 
+                      width={200} 
+                      height={200} 
+                      style={{ borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'zoom-in' }}
+                      onClick={() => window.open(person.receiptUrl, '_blank')}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600 }}>EMAIL ADDRESS</label>
-              <input 
-                value={form.email} 
-                readOnly={mode === 'view'}
-                onChange={e => setForm({...form, email: e.target.value})}
-                className={styles.modalInput}
-              />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600 }}>ROLE</label>
-              {mode === 'edit' ? (
-                <select 
-                  value={form.role} 
-                  onChange={e => setForm({...form, role: e.target.value})}
-                  className={styles.modalSelect}
-                >
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600 }}>FULL NAME</label>
+                <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={styles.modalInput} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600 }}>EMAIL ADDRESS</label>
+                <input value={form.email} onChange={e => setForm({...form, email: e.target.value})} className={styles.modalInput} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600 }}>ROLE</label>
+                <select value={form.role} onChange={e => setForm({...form, role: e.target.value})} className={styles.modalSelect}>
                   {['Coordinator', 'Volunteer', 'Member', 'Admin', 'Observer'].map(r => (
                     <option key={r} value={r}>{r}</option>
                   ))}
                 </select>
-              ) : (
-                <input value={form.role} readOnly className={styles.modalInput} />
-              )}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600 }}>LOCATION</label>
-              <input 
-                value={form.location} 
-                readOnly={mode === 'view'}
-                onChange={e => setForm({...form, location: e.target.value})}
-                className={styles.modalInput}
-              />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600 }}>STATUS</label>
-              <select 
-                value={form.status} 
-                disabled={mode === 'view'}
-                onChange={e => setForm({...form, status: e.target.value})}
-                className={styles.modalSelect}
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-                <option value="Pending">Pending</option>
-              </select>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600 }}>JOINED DATE</label>
-              <input value={new Date(form.joinedDate).toLocaleDateString()} readOnly className={styles.modalInput} />
-            </div>
-          </div>
-          {form.photo && (
-            <div style={{ marginTop: '1.25rem' }}>
-              <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>MEMBER PHOTO</label>
-              <Image src={form.photo} alt="Profile" width={80} height={80} style={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ fontSize: '0.75rem', color: '#667', fontWeight: 600 }}>STATUS</label>
+                <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className={styles.modalSelect}>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Pending">Pending</option>
+                </select>
+              </div>
             </div>
           )}
         </div>
@@ -557,7 +610,7 @@ function DeleteConfirmModal({ count, onClose, onConfirm, isDeleting }: any) {
         </div>
         <div className={styles.modalBody}>
           <p style={{ color: '#aaa', fontSize: '0.9rem', lineHeight: '1.6' }}>
-            Are you sure you want to remove <strong style={{ color: '#fff' }}>{count} member(s)</strong> permanently from Sphoorthi Kutumbam?
+            Are you sure you want to remove <strong style={{ color: '#fff' }}>{count} member(s)</strong> permanently from SPHOORTHI KUTUMBAM?
           </p>
         </div>
         <div className={styles.modalFooter}>

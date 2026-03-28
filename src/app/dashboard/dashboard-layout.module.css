@@ -4,7 +4,7 @@
 
 .shell {
   display: flex;
-  height: calc(100vh - 64px); 
+  height: calc(100vh - 88px); /* Adjusted for new header height */
   overflow: hidden;
   background: #000000;
 }
@@ -16,12 +16,12 @@
   display: flex;
   flex-direction: column;
   background: var(--clr-bg-card);
-  border-right: 1px solid var(--clr-border);
+  border-right: 1px solid rgba(255, 255, 255, 0.12); /* Brighter divider */
   padding: 1.75rem 1.15rem;
   gap: 0;
   position: sticky;
   top: 0;
-  height: calc(100vh - 64px);
+  height: calc(100vh - 88px); /* Adjusted for new header height */
   overflow-y: auto;
   z-index: 50;
 }
@@ -31,7 +31,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0 0.5rem 2rem;
+  padding: 0 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
 }
 
@@ -106,9 +106,34 @@
   margin-top: auto;
 }
 
+.footerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .footerLabel {
-  font-size: 0.8rem;
-  color: #666688;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.btnSignOut {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: var(--clr-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s;
+}
+
+.btnSignOut:hover {
+  color: var(--clr-accent);
 }
 
 /* ===================== CONTENT AREA ===================== */

@@ -1,7 +1,8 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { UserButton } from '@clerk/nextjs';
+import { UserButton, useUser, SignOutButton } from '@clerk/nextjs';
 import styles from './dashboard-layout.module.css';
 
 const navItems = [
@@ -19,10 +20,17 @@ const navItems = [
 
 export default function Sidebar() {
   const path = usePathname();
+  const { user } = useUser();
+
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.sidebarBrand}>
-        <span className={styles.brandName}>Sphoorthi</span>
+      <div className={styles.sidebarBrand} style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '0.75rem', 
+        paddingLeft: '0.25rem' 
+      }}>
+        <span className={styles.brandName} style={{ fontSize: '1rem' }}>MEMBERSHIP CARD</span>
       </div>
       <nav className={styles.nav}>
         {navItems.map(({ href, icon, label }) => (
@@ -37,8 +45,18 @@ export default function Sidebar() {
         ))}
       </nav>
       <div className={styles.sidebarFooter}>
-        <UserButton />
-        <span className={styles.footerLabel}>My Account</span>
+        <UserButton 
+          appearance={{ 
+            elements: { 
+              userButtonAvatarBox: { width: '36px', height: '36px' }
+            } 
+          }} 
+        />
+        <div className={styles.footerInfo} style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <span className={styles.footerLabel} style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>
+            {user?.fullName || 'Account'}
+          </span>
+        </div>
       </div>
     </aside>
   );
